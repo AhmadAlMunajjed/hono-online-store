@@ -1,7 +1,27 @@
-import { Context, Hono } from 'hono'
+import { Context, Hono, Next } from 'hono'
+import { cache } from 'hono/cache';
+import { logger } from 'hono/logger';
+import { timing } from 'hono/timing';
 import { Liquid } from 'liquidjs';
 
 const app = new Hono<{ Bindings: CloudflareBindings }>()
+
+const responseTimeMiddleware = async (c: Context, next: Next) => {
+  const start = Date.now()
+  await next()
+  const end = Date.now()
+  c.res.headers.set('X-Response-Time', `${(end - start)} ms`)
+}
+app.use('*', responseTimeMiddleware)
+app.use('*', logger())
+app.use('*', timing())
+// app.get(
+//   '*',
+//   cache({
+//     cacheName: 'my-app',
+//     cacheControl: 'max-age=60', // 1 minute 
+//   })
+// )
 
 const themesOptions = {
   // File extension for Liquid templates
@@ -10,7 +30,7 @@ const themesOptions = {
   layouts: 'layouts',
   partials: 'partials',
   // Path to themes directory if files are remote
-  themesUri: 'http://127.0.0.1:8787/themes',// 'https://assts.tajer.store/themes'
+  themesUri: true ? 'https://assts.tajer.store/themes' : 'http://127.0.0.1:8787/themes'
 };
 
 app.get('/test', (c: Context) => {
@@ -18,26 +38,27 @@ app.get('/test', (c: Context) => {
 })
 
 app.get('/', async (c: Context) => {
-  const { } = c.req.param;
   const theme = c.req.query('theme');
   const template = c.req.query('template')
   const lang = c.req.query('lang')
+  const font = c.req.query('font')
 
   if (!theme || !template) {
     return c.text('Missing theme or template query parameter');
   }
   try {
-    const requestUrl = '' // req.protocol + '://' + req.get('host')
-    const url = requestUrl + '' //req.originalUrl;
-    const image = requestUrl + '/assets/logo.png'
-    const html = await renderHtml(url, image, lang ?? 'en', theme, template);
+    // get request url in hono
+    const requestUrl = ''//c.req.url
+    const url = requestUrl + c.req.routePath;
+    const image = requestUrl + '/logo.png'
+    const html = await renderHtml(url, image, lang ?? 'en', theme, template, font);
     return c.html(html)
   } catch (err: any) {
     c.text(err.message)
   }
 })
 
-async function renderHtml(url: string, image: string, lang: string, theme: string, template: string) {
+async function renderHtml(url: string, image: string, lang: string, theme: string, template: string, font?: string) {
 
   const themesUri = themesOptions.themesUri;
   const themeUri = `${themesUri}/${theme}/`;
@@ -101,7 +122,7 @@ async function renderHtml(url: string, image: string, lang: string, theme: strin
     return local[str] || str;
   });
 
-  // crete asset_url filter
+  // create asset_url filter
   engine.registerFilter('asset_url', function (str) {
     return `${themeAssetsUri}/${str}`;
   });
@@ -114,9 +135,69 @@ async function renderHtml(url: string, image: string, lang: string, theme: strin
     image: image,
     lang,
     dir: lang === 'ar' ? 'rtl' : 'ltr',
+    font: font || 'arial'
   });
   return html
 }
 
+app.get('/manifest.webmanifest', async (c) => {
+  return c.json(
+    {
+      "name": "Hallo Markt",
+      "short_name": "Hallo",
+      "description": "Hallo Markt is a platform for selling and buying products and services in the Arab world",
+      "icons": [
+        {
+          "src": "https://abs.twimg.com/responsive-web/client-web/icon-default.522d363a.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        },
+        {
+          "src": "https://abs.twimg.com/responsive-web/client-web/icon-default-large.9ab12c3a.png",
+          "sizes": "512x512",
+          "type": "image/png"
+        },
+        {
+          "purpose": "maskable",
+          "src": "https://abs.twimg.com/responsive-web/client-web/icon-default-maskable.bacea37a.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        },
+        {
+          "purpose": "maskable",
+          "src": "https://abs.twimg.com/responsive-web/client-web/icon-default-maskable-large.35928fda.png",
+          "sizes": "512x512",
+          "type": "image/png"
+        }
+      ],
+      "start_url": "https://hono-online-store.tajer.workers.dev/",
+      "scope": "./",
+      "display": "standalone",
+      "orientation": "portrait",
+      "background_color": "#f7f7f7",
+      "theme_color": "#0091eb",
+      "gcm_sender_id": "103953800507"
+    })
+})
 
+app.get('/sitemap.xml', async (c) => {
+  // write example sitemap.xml
+  return c.text(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://hono-online-store.tajer.workers.dev/</loc>
+    <lastmod>2024-10-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>
+    `)
+})
+
+app.get('robots.txt', async (c) => {
+  // write example robots.txt
+  return c.text(`User-agent: *
+Sitemap: https://hono-online-store.tajer.workers.dev/sitemap.xml
+    `)
+})
 export default app
