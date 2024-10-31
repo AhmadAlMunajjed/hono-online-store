@@ -2,6 +2,7 @@
 name = "hono-online-store"
 main = "src/index.ts"
 compatibility_date = "2024-10-22"
+assets = { directory = "public" }
 
 # Workers Logs
 # Docs: https://developers.cloudflare.com/workers/observability/logs/workers-logs/

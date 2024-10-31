@@ -1,0 +1,19 @@
+{% layout 'main' %}
+
+{% block header %}
+    <link rel="stylesheet" href="{{ 'style.css' | asset_url }}">
+{% endblock %}
+
+{% block content %}
+<main>
+    Hi default theme home page!
+
+    language: {{lang}}
+    {{ 'title' | t }}
+    {{ 'body' | t }}
+</main>
+{% endblock %}
+
+{% block footer %}
+    <script src="{{ 'main.js' | asset_url }}"></script>
+{% endblock %}

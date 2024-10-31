@@ -1,9 +1,122 @@
-import { Hono } from 'hono'
+import { Context, Hono } from 'hono'
+import { Liquid } from 'liquidjs';
 
 const app = new Hono<{ Bindings: CloudflareBindings }>()
 
-app.get('/', (c) => {
+const themesOptions = {
+  // File extension for Liquid templates
+  extsionName: '.liquid',
+  // Path to layouts directory
+  layouts: 'layouts',
+  partials: 'partials',
+  // Path to themes directory if files are remote
+  themesUri: 'http://127.0.0.1:8787/themes',// 'https://assts.tajer.store/themes'
+};
+
+app.get('/test', (c: Context) => {
   return c.text('Hello Hono!')
 })
+
+app.get('/', async (c: Context) => {
+  const { } = c.req.param;
+  const theme = c.req.query('theme');
+  const template = c.req.query('template')
+  const lang = c.req.query('lang')
+
+  if (!theme || !template) {
+    return c.text('Missing theme or template query parameter');
+  }
+  try {
+    const requestUrl = '' // req.protocol + '://' + req.get('host')
+    const url = requestUrl + '' //req.originalUrl;
+    const image = requestUrl + '/assets/logo.png'
+    const html = await renderHtml(url, image, lang ?? 'en', theme, template);
+    return c.html(html)
+  } catch (err: any) {
+    c.text(err.message)
+  }
+})
+
+async function renderHtml(url: string, image: string, lang: string, theme: string, template: string) {
+
+  const themesUri = themesOptions.themesUri;
+  const themeUri = `${themesUri}/${theme}/`;
+  const themeAssetsUri = `${themeUri}assets`;
+  const themeLocalsUri = `${themeUri}locales`;
+
+  console.log({
+    themeUri,
+    themeAssetsUri,
+    themeLocalsUri
+  })
+
+  // Create a Liquid engine instance
+  const customResolver = {
+    resolve(dir: string, file: string, ext: string) {
+      console.log('resolve', `${dir}${file}${ext}`);
+      return `${dir}${file}${ext}`;
+    },
+    existsSync(filePath: string) {
+      throw new Error('Not implemented. Call async exists instead. This is a sync method called only when engine.renderSync is called, you need to call engine.renderSync instead of engine.render');
+    },
+    readFileSync(filePath: string) {
+      throw new Error('Not implemented. Call async readFile instead. This is a sync method called only when engine.renderSync is called, you need to call engine.renderSync instead of engine.render');
+    },
+    async readFile(filePath: string) {
+      // Construct the full URL to the file
+      console.log('readFile', filePath);
+      // Fetch the file content from the remote URL
+      const response = await fetch(filePath);
+      return response.text();
+    },
+    async exists(filePath: string) {
+      console.log('exists', filePath);
+      const response = await fetch(filePath);
+      return response.status === 200;
+    },
+  }
+
+  const engine = new Liquid({
+    root: themeUri,
+    extname: themesOptions.extsionName,
+    layouts: themeUri + themesOptions.layouts + '/',
+    relativeReference: false,
+    fs: customResolver,
+    cache: false,
+  });
+
+  let local: any = {}
+
+  try {
+    console.log('loading local file', `${themeLocalsUri}/${lang}.json`)
+    const response = await fetch(`${themeLocalsUri}/${lang}.json`);
+    local = await response.json();
+    console.log('local', local)
+  } catch (error) {
+    console.log('error loading local file', error)
+  }
+
+  // create translation filter that loads locale file
+  engine.registerFilter('t', async function (str) {
+    return local[str] || str;
+  });
+
+  // crete asset_url filter
+  engine.registerFilter('asset_url', function (str) {
+    return `${themeAssetsUri}/${str}`;
+  });
+
+  const html = await engine.renderFile(`partials/${template}`, {
+    title: 'My Online Store',
+    meta_description: 'This is an online store selling various products.',
+    meta_keywords: 'online store, ecommerce, products',
+    url: url,
+    image: image,
+    lang,
+    dir: lang === 'ar' ? 'rtl' : 'ltr',
+  });
+  return html
+}
+
 
 export default app
