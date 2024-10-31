@@ -15,13 +15,13 @@ const responseTimeMiddleware = async (c: Context, next: Next) => {
 app.use('*', responseTimeMiddleware)
 app.use('*', logger())
 app.use('*', timing())
-// app.get(
-//   '*',
-//   cache({
-//     cacheName: 'my-app',
-//     cacheControl: 'max-age=60', // 1 minute 
-//   })
-// )
+app.get(
+  '*',
+  cache({
+    cacheName: 'my-app',
+    cacheControl: 'max-age=60', // 1 minute 
+  })
+)
 
 const themesOptions = {
   // File extension for Liquid templates
@@ -30,8 +30,8 @@ const themesOptions = {
   layouts: 'layouts',
   partials: 'partials',
   // Path to themes directory if files are remote
-  themesUri: false ? 'https://assts.tajer.store/themes' : 'http://127.0.0.1:8787/themes',
-  storesUri: false ? 'https://assts.tajer.store/stores' : 'http://127.0.0.1:8787/stores',
+  themesUri: true ? 'https://assts.tajer.store/themes' : 'http://127.0.0.1:8787/themes',
+  storesUri: true ? 'https://assts.tajer.store/stores' : 'http://127.0.0.1:8787/stores',
 };
 
 app.get('/test', (c: Context) => {
@@ -76,8 +76,7 @@ async function renderHtml(url: string, image: string, lang: string, theme: strin
   const configs = await getStoreConfigs(tenant);
   const themeConfigs = await getThemeConfigs(tenant);
   const products = await getProducts(tenant);
-  const collections = await getCollections(tenant);
-
+  
   const themesUri = themesOptions.themesUri;
   const themeUri = `${themesUri}/${theme}/`;
   const themeAssetsUri = `${themeUri}assets`;
@@ -154,7 +153,6 @@ async function renderHtml(url: string, image: string, lang: string, theme: strin
     lang,
     dir: lang === 'ar' ? 'rtl' : 'ltr',
     font: font || 'arial',
-    collections,
     products,
     configs,
     themeConfigs,
