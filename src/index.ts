@@ -59,15 +59,24 @@ app.get('/', async (c: Context) => {
   }
 })
 
+async function getProducts(tenant: string) {
+  const response = await fetch('https://touch-plus.tajer.tech/api/catalog-public/product-list');
+  return await response.json();
+}
+
+async function getCollections(tenant: string) {
+  const response = await fetch('https://touch-plus.tajer.tech/api/catalog-public/collection');
+  return await response.json();
+}
+
 async function renderHtml(url: string, image: string, lang: string, theme: string, template: string, font?: string) {
 
   // get theme configs
   const tenant = await getTenantByDomain('hono-online-store.tajer.workers.dev');
   const configs = await getStoreConfigs(tenant);
   const themeConfigs = await getThemeConfigs(tenant);
-  
-  console.log('storeConfigs', configs)
-  console.log('themeConfigs', themeConfigs)
+  const products = await getProducts(tenant);
+  const collections = await getCollections(tenant);
 
   const themesUri = themesOptions.themesUri;
   const themeUri = `${themesUri}/${theme}/`;
@@ -136,7 +145,7 @@ async function renderHtml(url: string, image: string, lang: string, theme: strin
     return `${themeAssetsUri}/${str}`;
   });
 
-  const html = await engine.renderFile(`partials/${template}`, {
+  const data = {
     title: 'My Online Store',
     meta_description: 'This is an online store selling various products.',
     meta_keywords: 'online store, ecommerce, products',
@@ -144,8 +153,14 @@ async function renderHtml(url: string, image: string, lang: string, theme: strin
     image: image,
     lang,
     dir: lang === 'ar' ? 'rtl' : 'ltr',
-    font: font || 'arial'
-  });
+    font: font || 'arial',
+    collections,
+    products,
+    configs,
+    themeConfigs,
+  }
+  console.log('data', data)
+  const html = await engine.renderFile(`partials/${template}`, data);
   return html
 }
 

@@ -1,19 +1,58 @@
 {% layout 'main' %}
 
 {% block header %}
-    <link rel="stylesheet" href="{{ 'style.css' | asset_url }}">
+<link rel="stylesheet" href="{{ 'style.css' | asset_url }}">
 {% endblock %}
 
 {% block content %}
-<main>
-    Hi default theme home page!
+<!-- Header -->
+<header>
+    <div class="logo">ElegantStore</div>
+    <nav>
+        <a href="#">Home</a>
+        <a href="#">Shop</a>
+        <a href="#">About Us</a>
+        <a href="#">Contact</a>
+    </nav>
+    <div class="header-icons">
+        <a href="#"><i class="fas fa-search"></i></a>
+        <a href="#"><i class="fas fa-shopping-cart"></i></a>
+        <a href="#">Login</a>
+    </div>
+</header>
 
-    language: {{lang}}
-    {{ 'title' | t }}
-    {{ 'body' | t }}
-</main>
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-text">
+        <h1>Discover the New Collection</h1>
+        <p>Elegant and timeless pieces to elevate your style.</p>
+        <a href="#" class="cta-button">Shop Now</a>
+    </div>
+</section>
+
+<!-- Featured Products Section -->
+<section class="featured-products">
+    <h2>Featured Products</h2>
+    <div class="product-grid">
+        {% for product in products.items %}
+        <div class="product-card">
+            {% if product.thumbnail != '' %}
+            <img src="{{configs.images.default}}" alt="{{product.name}}">
+            {% endif %}
+            {% if product.thumbnail == '' %}
+            <img src="{{product.thumbnail}}" alt="{{product.name}}">
+            {% endif %}
+            <div class="product-info">
+                <h3>{{product.name}}</h3>
+                <p>{{product.minPrice | price}}</p>
+                <button class="add-to-cart">Add to Cart</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
 {% endblock %}
 
 {% block footer %}
-    <script src="{{ 'main.js' | asset_url }}"></script>
+<script src="{{ 'main.js' | asset_url }}"></script>
 {% endblock %}
