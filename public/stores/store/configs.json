@@ -1,0 +1,129 @@
+{
+    "status": "active",
+    "theme": "default",
+    "branding": {
+        "font": "Roboto",
+        "color": "#000000",
+        "background": "#ffffff"
+    },
+    "images": {
+        "logo": "https://whyzr.blob.core.windows.net/images/tenants/be36700f-65c9-2be2-7342-39fea06c5b78/others/bbedb37f-b30b-425d-8136-d1407054d63b.png",
+        "icon": "https://whyzr.blob.core.windows.net/images/tenants/be36700f-65c9-2be2-7342-39fea06c5b78/icon/6a1bd000-6834-4f89-b4d9-1e74511e4472.png",
+        "default": "https://whyzr.blob.core.windows.net/images/tenants/be36700f-65c9-2be2-7342-39fea06c5b78/item/60bf7bb7-8d67-445e-bb17-538d6f281b05.png"
+    },
+    "customerService": {
+        "mobilePhone": "string",
+        "whatsApp": "string",
+        "landline": "string",
+        "email": "string",
+        "telegram": "string"
+    },
+    "socialMedia": {
+        "instagram": "string",
+        "facebook": "string",
+        "x": "string",
+        "youtube": "string",
+        "snapchat": "string",
+        "ticktok": "string"
+    },
+    "names": {
+        "ar": "متجري",
+        "en": "My Store"
+    },
+    "descriptions": {
+        "ar": "متجري الخاص",
+        "en": "My own store"
+    },
+    "metaTitles": {
+        "ar": "متجري",
+        "en": "My Store"
+    },
+    "metaDescriptions": {
+        "ar": "متجري الخاص",
+        "en": "My own store"
+    },
+    "options": {
+        "showTitle": false
+    },
+    "settings": {
+        "currencies": [
+            "USD",
+            "EUR",
+            "EGP"
+        ],
+        "languages": [
+            "en",
+            "ar"
+        ],
+        "googleTagManagerId": "string",
+        "googleAnalyticsId": "string",
+        "facebookPixelId": "string",
+        "hotjarId": "string",
+        "googleSiteVerification": "string"
+    },
+    "features": {
+        "brands": false
+    },
+    "navigationItems": {
+        "header": [
+            {
+                "titles": {
+                    "ar": "الرئيسية",
+                    "en": "Home"
+                },
+                "url": "/"
+            },
+            {
+                "titles": {
+                    "ar": "العروض",
+                    "en": "Offers"
+                },
+                "url": "/offers"
+            },
+            {
+                "titles": {
+                    "ar": "المنتجات",
+                    "en": "Products"
+                },
+                "url": "/products"
+            },
+            {
+                "titles": {
+                    "ar": "التواصل",
+                    "en": "Contact"
+                },
+                "url": "/contact"
+            }
+        ],
+        "footer": [
+            {
+                "titles": {
+                    "ar": "الرئيسية",
+                    "en": "Home"
+                },
+                "url": "/"
+            },
+            {
+                "titles": {
+                    "ar": "العروض",
+                    "en": "Offers"
+                },
+                "url": "/offers"
+            },
+            {
+                "titles": {
+                    "ar": "المنتجات",
+                    "en": "Products"
+                },
+                "url": "/products"
+            },
+            {
+                "titles": {
+                    "ar": "التواصل",
+                    "en": "Contact"
+                },
+                "url": "/contact"
+            }
+        ]
+    }
+}

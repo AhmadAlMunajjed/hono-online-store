@@ -1,0 +1,20 @@
+{
+    "name": "default",
+    "features": [
+        {
+            "titles": {
+                "ar": "العروض",
+                "en": "Offers"
+            },
+            "descriptions": {
+                "ar": "العروض الخاصة بنا",
+                "en": "Our offers"
+            },
+            "images": {
+                "ar": "string",
+                "en": "string"
+            },
+            "url": "string"
+        }
+    ]
+}

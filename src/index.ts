@@ -30,7 +30,8 @@ const themesOptions = {
   layouts: 'layouts',
   partials: 'partials',
   // Path to themes directory if files are remote
-  themesUri: true ? 'https://assts.tajer.store/themes' : 'http://127.0.0.1:8787/themes'
+  themesUri: false ? 'https://assts.tajer.store/themes' : 'http://127.0.0.1:8787/themes',
+  storesUri: false ? 'https://assts.tajer.store/stores' : 'http://127.0.0.1:8787/stores',
 };
 
 app.get('/test', (c: Context) => {
@@ -59,6 +60,14 @@ app.get('/', async (c: Context) => {
 })
 
 async function renderHtml(url: string, image: string, lang: string, theme: string, template: string, font?: string) {
+
+  // get theme configs
+  const tenant = await getTenantByDomain('hono-online-store.tajer.workers.dev');
+  const configs = await getStoreConfigs(tenant);
+  const themeConfigs = await getThemeConfigs(tenant);
+  
+  console.log('storeConfigs', configs)
+  console.log('themeConfigs', themeConfigs)
 
   const themesUri = themesOptions.themesUri;
   const themeUri = `${themesUri}/${theme}/`;
@@ -140,6 +149,25 @@ async function renderHtml(url: string, image: string, lang: string, theme: strin
   return html
 }
 
+async function getStoreConfigs(tenant: string) {
+  const response = await fetch(themesOptions.storesUri + `/${tenant}/configs.json`);
+  return await response.json();
+}
+
+async function getThemeConfigs(tenant: string) {
+  const response = await fetch(themesOptions.storesUri + `/${tenant}/theme.json`);
+  return await response.json();
+}
+
+/**
+ * get tenant by domain from key value store kv
+ * @param domain current domain
+ * @returns 
+ */
+async function getTenantByDomain(domain: string) {
+  return "store";
+}
+
 app.get('/manifest.webmanifest', async (c) => {
   return c.json(
     {
@@ -200,4 +228,5 @@ app.get('robots.txt', async (c) => {
 Sitemap: https://hono-online-store.tajer.workers.dev/sitemap.xml
     `)
 })
+
 export default app
