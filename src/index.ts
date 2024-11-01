@@ -76,7 +76,7 @@ async function renderHtml(url: string, image: string, lang: string, theme: strin
   const configs = await getStoreConfigs(tenant);
   const themeConfigs = await getThemeConfigs(tenant);
   const products = await getProducts(tenant);
-  
+
   const themesUri = themesOptions.themesUri;
   const themeUri = `${themesUri}/${theme}/`;
   const themeAssetsUri = `${themeUri}assets`;
@@ -240,6 +240,14 @@ app.get('robots.txt', async (c) => {
   return c.text(`User-agent: *
 Sitemap: https://hono-online-store.tajer.workers.dev/sitemap.xml
     `)
+})
+
+import { serve } from '@hono/node-server'
+serve({
+  fetch: app.fetch,
+  port: 3000,
+}, () => {
+  console.log('Server started at http://localhost:3000')
 })
 
 export default app
